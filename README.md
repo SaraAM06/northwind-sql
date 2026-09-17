@@ -14,7 +14,7 @@ Para reproducir el entorno de esta práctica y cargar los datos correctamente, s
 2. Se ha abierto la *Query Tool* y se ha cargado el fichero proporcionado `northwind.sql`.
 3. Se ha ejecutado el script correctamente y ha devuelto el mensaje de éxito `Query returned successfully`, confirmando que el entorno está listo.
 
-![Ejecución del script](img/ejecucion.png)
+![Ejecución del script](img/ejecucion.PNG)
 
 ## Validación de la base de datos
 
