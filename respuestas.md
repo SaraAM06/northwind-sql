@@ -6,11 +6,11 @@
 
 ```sql
 -- Obtiene los productos activos con precio entre 10 y 50 euros, ordenados de mayor a menor precio
-SELECT product_name AS producto, 
+SELECT
+       product_name AS producto, 
        ROUND(unit_price::numeric, 2) AS precio
 FROM products
-WHERE discontinued = 0 
-  AND unit_price BETWEEN 10 AND 50
+WHERE discontinued = 0 AND unit_price BETWEEN 10 AND 50
 ORDER BY precio DESC;
 ```
 **Captura:**
@@ -25,7 +25,8 @@ ORDER BY precio DESC;
 
 ```sql
 -- Cuenta clientes y ciudades distintas por país, filtrando aquellos con 5 o más clientes
-SELECT country AS pais,
+SELECT
+       country AS pais,
        COUNT(customer_id) AS num_clientes,
        COUNT(DISTINCT city) AS num_ciudades
 FROM customers
@@ -80,17 +81,11 @@ SELECT
     s.company_name AS proveedor, 
     s.country AS pais, 
     s.city AS ciudad
-FROM 
-    products p
-INNER JOIN 
-    categories c USING (category_id)
-INNER JOIN 
-    suppliers s USING (supplier_id)
-WHERE 
-    s.country IN ('Italy', 'France', 'Spain')
-ORDER BY 
-    s.country ASC, 
-    p.product_name ASC;
+FROM products p
+INNER JOIN categories c USING (category_id)
+INNER JOIN suppliers s USING (supplier_id)
+WHERE s.country IN ('Italy', 'France', 'Spain')
+ORDER BY s.country ASC, p.product_name ASC;
 ```
 **Captura:**
 
@@ -112,16 +107,11 @@ SELECT
     od.quantity AS cantidad, 
     od.discount AS descuento, 
     ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2) AS importe_linea
-FROM 
-    orders o
-INNER JOIN 
-    customers c USING (customer_id)
-INNER JOIN 
-    order_details od USING (order_id)
-INNER JOIN 
-    products p USING (product_id)
-WHERE 
-    o.order_id = 10248;
+FROM orders o
+INNER JOIN customers c USING (customer_id)
+INNER JOIN order_details od USING (order_id)
+INNER JOIN products p USING (product_id)
+WHERE o.order_id = 10248;
 ```
 **Captura:**
 
@@ -139,18 +129,12 @@ SELECT
     COUNT(od.product_id) AS num_lineas, 
     COUNT(DISTINCT od.product_id) AS num_productos, 
     SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS facturacion
-FROM 
-    categories c
-INNER JOIN 
-    products p USING (category_id)
-INNER JOIN 
-    order_details od USING (product_id)
-GROUP BY 
-    c.category_name
-HAVING 
-    SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) > 100000
-ORDER BY 
-    facturacion DESC;
+FROM categories c
+INNER JOIN products p USING (category_id)
+INNER JOIN order_details od USING (product_id)
+GROUP BY c.category_name
+HAVING SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) > 100000
+ORDER BY facturacion DESC;
 ```
 **Captura:**
 
@@ -168,16 +152,10 @@ SELECT
     c.country AS pais, 
     COUNT(o.order_id) AS num_pedidos, 
     COALESCE(MAX(o.order_date)::text, 'SIN PEDIDOS') AS ultimo_pedido
-FROM 
-    customers c
-LEFT JOIN 
-    orders o USING (customer_id)
-GROUP BY 
-    c.company_name, 
-    c.country
-ORDER BY 
-    num_pedidos ASC, 
-    c.company_name ASC;
+FROM customers c
+LEFT JOIN orders o USING (customer_id)
+GROUP BY c.company_name, c.country
+ORDER BY num_pedidos ASC, c.company_name ASC;
 ```
 **Captura:**
 
@@ -195,10 +173,8 @@ SELECT
     e.title AS cargo, 
     COALESCE(m.first_name || ' ' || m.last_name, 'DIRECCIÓN GENERAL') AS responsable, 
     m.title AS cargo_responsable
-FROM 
-    employees e
-LEFT JOIN 
-    employees m ON e.reports_to = m.employee_id;
+FROM employees e
+LEFT JOIN employees m ON e.reports_to = m.employee_id;
 ```
 **Captura:**
 
@@ -224,15 +200,10 @@ ventas AS (
         p.category_id, 
         EXTRACT(YEAR FROM o.order_date) AS anio, 
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS total
-    FROM 
-        orders o
-    INNER JOIN 
-        order_details od USING (order_id)
-    INNER JOIN 
-        products p USING (product_id)
-    GROUP BY 
-        p.category_id, 
-        EXTRACT(YEAR FROM o.order_date)
+    FROM orders o
+    INNER JOIN order_details od USING (order_id)
+    INNER JOIN products p USING (product_id)
+    GROUP BY p.category_id, EXTRACT(YEAR FROM o.order_date)
 )
 SELECT 
     c.category_name AS categoria, 
@@ -240,13 +211,9 @@ SELECT
     COALESCE(v.total, 0) AS facturacion
 FROM 
     categories c
-CROSS JOIN 
-    anios a
-LEFT JOIN 
-    ventas v ON c.category_id = v.category_id AND a.anio = v.anio
-ORDER BY 
-    categoria ASC, 
-    anio ASC;
+CROSS JOIN anios a
+LEFT JOIN ventas v ON c.category_id = v.category_id AND a.anio = v.anio
+ORDER BY categoria ASC, anio ASC;
 ```
 **Captura:**
 
@@ -263,19 +230,15 @@ WITH clientes_pais AS (
     SELECT 
         country, 
         COUNT(customer_id) AS nc 
-    FROM 
-        customers 
-    GROUP BY 
-        country
+    FROM customers 
+    GROUP BY country
 ),
 proveedores_pais AS (
     SELECT 
         country, 
         COUNT(supplier_id) AS np 
-    FROM 
-        suppliers 
-    GROUP BY 
-        country
+    FROM suppliers 
+    GROUP BY country
 )
 SELECT 
     COALESCE(c.country, p.country) AS pais,
@@ -286,12 +249,9 @@ SELECT
         WHEN c.nc IS NOT NULL THEN 'SOLO CLIENTES'
         ELSE 'SOLO PROVEEDORES' 
     END AS tipo_presencia
-FROM 
-    clientes_pais c
-FULL JOIN 
-    proveedores_pais p USING (country)
-ORDER BY 
-    pais ASC;
+FROM clientes_pais c
+FULL JOIN proveedores_pais p USING (country)
+ORDER BY pais ASC;
 ```
 **Captura:**
 
@@ -326,30 +286,20 @@ Ordena ambos resultados alfabéticamente.
 
 ```sql
 -- a) Países donde hay clientes pero ningún proveedor
-SELECT 
-    country AS pais 
-FROM 
-    customers
+SELECT country AS pais 
+FROM customers
 EXCEPT
-SELECT 
-    country 
-FROM 
-    suppliers
-ORDER BY 
-    pais ASC;
+SELECT country 
+FROM suppliers
+ORDER BY pais ASC;
 
 -- b) Países donde hay a la vez clientes y proveedores
-SELECT 
-    country AS pais 
-FROM 
-    customers
+SELECT country AS pais 
+FROM customers
 INTERSECT
-SELECT 
-    country 
-FROM 
-    suppliers
-ORDER BY 
-    pais ASC;
+SELECT country 
+FROM suppliers
+ORDER BY pais ASC;
 ```
 **Captura:**
 
@@ -366,30 +316,19 @@ SELECT
     c.company_name AS cliente, 
     c.country AS pais, 
     COUNT(o.order_id) AS pedidos_realizados
-FROM 
-    customers c
-LEFT JOIN 
-    orders o USING (customer_id)
+FROM customers c
+LEFT JOIN orders o USING (customer_id)
 WHERE 
     NOT EXISTS (
         SELECT 1 
-        FROM 
-            orders o2 
-        INNER JOIN 
-            order_details od USING (order_id) 
-        INNER JOIN 
-            products p USING (product_id) 
-        INNER JOIN 
-            categories cat USING (category_id)
-        WHERE 
-            o2.customer_id = c.customer_id 
-            AND cat.category_name = 'Seafood'
+        FROM orders o2 
+        INNER JOIN order_details od USING (order_id) 
+        INNER JOIN products p USING (product_id) 
+        INNER JOIN categories cat USING (category_id)
+        WHERE o2.customer_id = c.customer_id AND cat.category_name = 'Seafood'
     )
-GROUP BY 
-    c.company_name, 
-    c.country
-ORDER BY 
-    pedidos_realizados DESC;
+GROUP BY c.company_name, c.country
+ORDER BY pedidos_realizados DESC;
 ```
 **Captura:**
 
@@ -407,13 +346,9 @@ SELECT
     ROUND(unit_price::numeric, 2) AS precio,
     ROUND((SELECT AVG(unit_price)::numeric FROM products WHERE discontinued = 0), 2) AS precio_medio_catalogo,
     ROUND(unit_price::numeric - (SELECT AVG(unit_price)::numeric FROM products WHERE discontinued = 0), 2) AS diferencia
-FROM 
-    products 
-WHERE 
-    discontinued = 0 
-    AND unit_price > (SELECT AVG(unit_price) FROM products WHERE discontinued = 0)
-ORDER BY 
-    diferencia DESC;
+FROM products 
+WHERE discontinued = 0 AND unit_price > (SELECT AVG(unit_price) FROM products WHERE discontinued = 0)
+ORDER BY diferencia DESC;
 ```
 **Captura:**
 
@@ -432,26 +367,18 @@ SELECT
     COUNT(t.order_id) AS num_pedidos,
     SUM(t.total_pedido) AS importe_total, 
     ROUND(AVG(t.total_pedido), 2) AS ticket_medio
-FROM 
-    customers c
+FROM customers c
 INNER JOIN (
     SELECT 
         o.customer_id, 
         o.order_id, 
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS total_pedido
-    FROM 
-        orders o
-    INNER JOIN 
-        order_details od USING (order_id)
-    GROUP BY 
-        o.customer_id, 
-        o.order_id
+    FROM orders o
+    INNER JOIN order_details od USING (order_id)
+    GROUP BY o.customer_id, o.order_id
 ) t USING (customer_id)
-GROUP BY 
-    c.company_name, 
-    c.country
-ORDER BY 
-    ticket_medio DESC
+GROUP BY c.company_name, c.country
+ORDER BY ticket_medio DESC
 LIMIT 15;
 ```
 **Captura:**
@@ -470,18 +397,13 @@ SELECT
     p.product_name AS producto, 
     ROUND(p.unit_price::numeric, 2) AS precio,
     ROUND((SELECT AVG(unit_price)::numeric FROM products p3 WHERE p3.category_id = p.category_id), 2) AS precio_medio_categoria
-FROM 
-    products p
-INNER JOIN 
-    categories c USING (category_id)
+FROM products p
+INNER JOIN categories c USING (category_id)
 WHERE 
     p.unit_price = (
-        SELECT 
-            MAX(unit_price) 
-        FROM 
-            products p2 
-        WHERE 
-            p2.category_id = p.category_id
+        SELECT MAX(unit_price) 
+        FROM products p2 
+        WHERE p2.category_id = p.category_id
     );
 ```
 **Captura:**
@@ -500,23 +422,17 @@ WHERE
 
 ```sql
 WITH VentasClientes AS (
-    SELECT 
-        o.customer_id, 
-        SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS facturacion
-    FROM 
-        orders o 
-    INNER JOIN 
-        order_details od USING (order_id) 
-    GROUP BY 
-        o.customer_id
+    SELECT o.customer_id, SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS facturacion
+    FROM orders o 
+    INNER JOIN order_details od USING (order_id) 
+    GROUP BY o.customer_id
 ),
 Cuartiles AS (
     SELECT 
         customer_id, 
         facturacion, 
         NTILE(4) OVER (ORDER BY facturacion DESC) as cuartil 
-    FROM 
-        VentasClientes
+    FROM VentasClientes
 ),
 Segmentos AS (
     SELECT 
@@ -528,20 +444,16 @@ Segmentos AS (
             WHEN 4 THEN 'D - Marginal' 
         END AS segmento, 
         facturacion 
-    FROM 
-        Cuartiles
+    FROM Cuartiles
 )
 SELECT 
     segmento, 
     COUNT(customer_id) AS num_clientes, 
     SUM(facturacion) AS facturacion_segmento,
     ROUND(SUM(facturacion) / (SELECT SUM(facturacion) FROM Segmentos) * 100, 2) AS porcentaje_sobre_total
-FROM 
-    Segmentos 
-GROUP BY 
-    segmento 
-ORDER BY 
-    segmento ASC;
+FROM Segmentos 
+GROUP BY segmento 
+ORDER BY segmento ASC;
 ```
 **Captura:**
 
@@ -561,14 +473,9 @@ WITH VentasProd AS (
         p.product_name AS producto, 
         SUM(od.quantity) AS unidades,
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS facturacion
-    FROM 
-        products p 
-    INNER JOIN 
-        order_details od USING (product_id) 
-    GROUP BY 
-        p.category_id, 
-        p.product_id, 
-        p.product_name
+    FROM products p 
+    INNER JOIN order_details od USING (product_id) 
+    GROUP BY p.category_id, p.product_id, p.product_name
 ),
 Rankings AS (
     SELECT 
@@ -578,10 +485,8 @@ Rankings AS (
         v.facturacion,
         RANK() OVER (PARTITION BY v.category_id ORDER BY v.facturacion DESC) AS posicion_en_categoria,
         RANK() OVER (ORDER BY v.facturacion DESC) AS posicion_global
-    FROM 
-        VentasProd v 
-    INNER JOIN 
-        categories c USING (category_id)
+    FROM VentasProd v 
+    INNER JOIN categories c USING (category_id)
 )
 SELECT 
     categoria, 
@@ -590,13 +495,9 @@ SELECT
     unidades, 
     facturacion, 
     posicion_global
-FROM 
-    Rankings 
-WHERE 
-    posicion_en_categoria <= 3 
-ORDER BY 
-    categoria ASC, 
-    posicion_en_categoria ASC;
+FROM Rankings 
+WHERE posicion_en_categoria <= 3 
+ORDER BY categoria ASC, posicion_en_categoria ASC;
 ```
 **Captura:**
 
@@ -618,14 +519,10 @@ WITH VentasMes AS (
     SELECT 
         DATE_TRUNC('month', o.order_date)::date AS mes,
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS facturacion
-    FROM 
-        orders o 
-    INNER JOIN 
-        order_details od USING (order_id) 
-    WHERE 
-        EXTRACT(YEAR FROM o.order_date) = 1997 
-    GROUP BY 
-        DATE_TRUNC('month', o.order_date)::date
+    FROM orders o 
+    INNER JOIN order_details od USING (order_id) 
+    WHERE EXTRACT(YEAR FROM o.order_date) = 1997 
+    GROUP BY DATE_TRUNC('month', o.order_date)::date
 )
 SELECT 
     mes, 
@@ -634,10 +531,8 @@ SELECT
     ROUND(AVG(facturacion) OVER (ORDER BY mes ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS media_movil_3m,
     LAG(facturacion) OVER (ORDER BY mes) AS mes_anterior,
     ROUND((facturacion - LAG(facturacion) OVER (ORDER BY mes)) / LAG(facturacion) OVER (ORDER BY mes) * 100, 2) AS variacion_pct
-FROM 
-    VentasMes 
-ORDER BY 
-    mes ASC;
+FROM VentasMes 
+ORDER BY mes ASC;
 ```
 **Captura:**
 
@@ -657,16 +552,11 @@ WITH VentasCategoria AS (
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) FILTER (WHERE EXTRACT(YEAR FROM o.order_date) = 1997) AS f_1997,
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) FILTER (WHERE EXTRACT(YEAR FROM o.order_date) = 1998) AS f_1998,
         SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS total
-    FROM 
-        categories c 
-    INNER JOIN 
-        products p USING (category_id) 
-    INNER JOIN 
-        order_details od USING (product_id) 
-    INNER JOIN 
-        orders o USING (order_id)
-    GROUP BY 
-        ROLLUP(c.category_name)
+    FROM categories c 
+    INNER JOIN products p USING (category_id) 
+    INNER JOIN order_details od USING (product_id) 
+    INNER JOIN orders o USING (order_id)
+    GROUP BY ROLLUP(c.category_name)
 )
 SELECT 
     COALESCE(categoria, 'TOTAL GENERAL') AS categoria,
@@ -681,8 +571,7 @@ SELECT
         WHEN f_1998 < f_1997 THEN 'DECRECE'
         ELSE 'MANTIENE' 
     END AS tendencia
-FROM 
-    VentasCategoria 
+FROM VentasCategoria 
 ORDER BY 
     CASE 
         WHEN categoria IS NULL THEN 1 
