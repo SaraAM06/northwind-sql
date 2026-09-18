@@ -4,7 +4,7 @@
 
 **Entorno Técnico:**
 - **PostgreSQL:** 18
-- **pgAdmin:** [Rellena aquí tu versión de pgAdmin, ej. 8.4]
+- **pgAdmin:** 18.6
 
 ## Instrucciones de despliegue
 
