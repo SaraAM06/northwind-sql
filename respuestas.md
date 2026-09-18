@@ -30,4 +30,30 @@ GROUP BY country
 HAVING COUNT(customer_id) >= 5
 ORDER BY num_clientes DESC;
 ```
+# Pregunta 3 — Alerta de reposición
+
+**Enunciado:** Logística necesita detectar qué referencias están en riesgo de rotura de stock. Localiza los productos activos cuyas unidades en stock sean **inferiores o iguales** a su nivel de reposición. Muestra el nombre, las unidades en stock, el nivel de reposición, las unidades ya pedidas al proveedor y una columna de texto que indique `'CRÍTICO'` cuando el stock sea 0 y `'AVISO'` en el resto de casos.
+
+**Consulta:**
+
+```sql
+SELECT 
+    product_name   AS producto, 
+    units_in_stock AS stock, 
+    reorder_level  AS nivel_reposicion, 
+    units_on_order AS pedido_a_proveedor,
+    CASE 
+        WHEN units_in_stock = 0 THEN 'CRÍTICO' 
+        ELSE 'AVISO' 
+    END AS situacion
+FROM 
+    products
+WHERE 
+    discontinued = 0 
+    AND units_in_stock <= reorder_level 
+    AND units_in_stock IS NOT NULL 
+    AND reorder_level IS NOT NULL;
+```
+
+
 
