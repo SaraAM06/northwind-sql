@@ -21,12 +21,15 @@ Para reproducir el entorno de esta práctica y cargar los datos correctamente, s
 Tras la carga del script, se han realizado tres comprobaciones de seguridad para garantizar la integridad de los datos antes de comenzar el análisis:
 
 1. **Volumen de datos:** Se verificó el número total de registros en las tablas principales (91 clientes, 830 pedidos, 2155 líneas de pedido, 77 productos, 9 empleados y 29 proveedores).
+
 ![Validación de conteos](img/validacion_conteos.png)
 
 2. **Integridad referencial:** Se confirmó la correcta creación de las restricciones en la base de datos (14 Primary Keys, 13 Foreign Keys y 31 restricciones NOT NULL).
+
 ![Validación de restricciones](img/validacion_restricciones.png)
 
 3. **Codificación:** Se comprobó que la base de datos está correctamente configurada en UTF-8, visualizando sin errores caracteres especiales y tildes en los nombres de empresas y ciudades (ej. México D.F., Luleå).
+
 ![Validación UTF-8](img/validacion_utf8.png)
 
 ## Modelo de Datos (Diagrama ER)
