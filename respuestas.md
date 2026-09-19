@@ -46,6 +46,7 @@ ORDER BY num_clientes DESC;
 **Consulta:**
 
 ```sql
+-- Devuelve aquellos productos con un bajo stock clasificándolos en dos grupos dependiendo de gravedad de la situación
 SELECT 
     product_name   AS producto, 
     units_in_stock AS stock, 
@@ -75,6 +76,7 @@ WHERE
 **Consulta:**
 
 ```sql
+-- Devolver el catálogo de productos de empresas de Italia, Francia o España junto a una información básica
 SELECT 
     p.product_name AS producto, 
     c.category_name AS categoria, 
@@ -99,6 +101,7 @@ ORDER BY s.country ASC, p.product_name ASC;
 **Consulta:**
 
 ```sql
+-- Devolver toda la información de la factura asociada a el pedido 10248 por una incidencia
 SELECT 
     c.company_name AS cliente, 
     o.order_date AS fecha_pedido, 
@@ -124,6 +127,7 @@ WHERE o.order_id = 10248;
 **Consulta:**
 
 ```sql
+-- Devolver aquellas familias de productos que más generan a la empresa junto a cierta información requerida sobre las ventas
 SELECT 
     c.category_name AS categoria, 
     COUNT(od.product_id) AS num_lineas, 
@@ -147,6 +151,7 @@ ORDER BY facturacion DESC;
 **Consulta:**
 
 ```sql
+-- Localizar los clientes con cuenta pero que no realizaron ningún pedido
 SELECT 
     c.company_name AS cliente, 
     c.country AS pais, 
@@ -168,6 +173,7 @@ ORDER BY num_pedidos ASC, c.company_name ASC;
 **Consulta:**
 
 ```sql
+-- Devolver el organigrama completo del departamento comercial 
 SELECT 
     e.first_name || ' ' || e.last_name AS empleado, 
     e.title AS cargo, 
@@ -188,6 +194,7 @@ LEFT JOIN employees m ON e.reports_to = m.employee_id;
 **Consulta:**
 
 ```sql
+-- Devolver las ventas de cada categoría en cada año
 WITH anios AS (
     SELECT 1996 AS anio 
     UNION ALL 
@@ -226,6 +233,7 @@ ORDER BY categoria ASC, anio ASC;
 **Consulta:**
 
 ```sql
+-- Mostrar todos los países donde la empresa tiene clientes, proveedores o ambos junto a su cantidad
 WITH clientes_pais AS (
     SELECT 
         country, 
@@ -264,6 +272,7 @@ ORDER BY pais ASC;
 **Consulta:**
 
 ```sql
+-- Devolver todos los contactos de la compañía
 SELECT 'CLIENTE' AS origen, UPPER(contact_name) AS contacto, company_name AS organizacion, city AS ciudad, country AS pais FROM customers
 UNION ALL
 SELECT 'PROVEEDOR', UPPER(contact_name), company_name, city, country FROM suppliers
@@ -312,6 +321,7 @@ ORDER BY pais ASC;
 **Consulta:**
 
 ```sql
+-- Devolver aquellos clientes que nunca han pedido un producto de la categoría seafood 
 SELECT 
     c.company_name AS cliente, 
     c.country AS pais, 
@@ -341,6 +351,7 @@ ORDER BY pedidos_realizados DESC;
 **Consulta:**
 
 ```sql
+-- Localizar aquellos productos que, por su alto precio, se consideran premium y la diferencia que tienen con la media del catálogo
 SELECT 
     product_name AS producto, 
     ROUND(unit_price::numeric, 2) AS precio,
@@ -361,6 +372,7 @@ ORDER BY diferencia DESC;
 **Consulta:**
 
 ```sql
+-- Calcula, para cada cliente que haya comprado alguna vez, el número de pedidos, el importe total acumulado y el importe medio por pedido
 SELECT 
     c.company_name AS cliente, 
     c.country AS pais, 
@@ -392,6 +404,7 @@ LIMIT 15;
 **Consulta:**
 
 ```sql
+-- Devuelve de cada categoría el producto más caro junto a su precio y el precio medio de su categoría
 SELECT 
     c.category_name AS categoria, 
     p.product_name AS producto, 
@@ -421,6 +434,7 @@ WHERE
 **Consulta:**
 
 ```sql
+-- Clasifica a los clientes en grupos según su facturación
 WITH VentasClientes AS (
     SELECT o.customer_id, SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS facturacion
     FROM orders o 
@@ -466,6 +480,7 @@ ORDER BY segmento ASC;
 **Consulta:**
 
 ```sql
+-- Devuelve los tres productos de mayor facturación de cada categoría e incluye su posición global
 WITH VentasProd AS (
     SELECT 
         p.category_id, 
@@ -515,6 +530,7 @@ ORDER BY categoria ASC, posicion_en_categoria ASC;
 **Consulta:**
 
 ```sql
+-- Devolver un análisis de la evolución del negocio durante 1997
 WITH VentasMes AS (
     SELECT 
         DATE_TRUNC('month', o.order_date)::date AS mes,
@@ -545,6 +561,7 @@ ORDER BY mes ASC;
 **Consulta:**
 
 ```sql
+-- Devuelve un informe anual de la empresa con la facturación de 1996, 1997 y 1998
 WITH VentasCategoria AS (
     SELECT 
         c.category_name AS categoria,
