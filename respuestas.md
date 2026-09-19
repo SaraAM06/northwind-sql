@@ -634,4 +634,4 @@ ORDER BY
 
 ![P20](img/P20.png)
 
-**Comentario:** La función `FILTER` te permite aplicar una condición WHERE únicamente a una función de agregación específica. En este caso, a la función `SUM`. En este ejercicio, también se podría resolver con un `CASE`, pero es algo más denso.
+**Comentario:** La función `FILTER` te permite aplicar una condición `WHERE` únicamente a una función de agregación específica. En este caso, a la función `SUM`. En este ejercicio, también se podría resolver con un `CASE`, pero es algo más denso.
