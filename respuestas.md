@@ -548,7 +548,7 @@ ORDER BY categoria ASC, posicion_en_categoria ASC;
 
 ![P18](img/P18.png)
 
-**Comentario:** Uso de `RANK` se usa para crear rankings. En el caso de su primer uso en esta consulta usa `PARTITION BY` que lo que hace es dividir en grupos según la categoría lo que hace que el ranking se calcule de forma independiente dentro de cada categoría.
+**Comentario:** `RANK` se usa para crear rankings. En el caso de su primer uso en esta consulta usa `PARTITION BY` que lo que hace es dividir en grupos según la categoría lo que hace que el ranking se calcule de forma independiente dentro de cada categoría.
 
 ## Pregunta 19 — Evolución mensual con acumulado y media móvil
 
@@ -586,7 +586,7 @@ ORDER BY mes ASC;
 
 ![P19](img/P19.png)
 
-**Comentario:** Se usa `DATA_TRUNC` para obtener el mes de una fecha que contiene más datos. `En media_movil_3m` se usa una función de venta que devuelve el mes anterior y los dos siguientes. La función `LAG()`, que se usa varias veces en esta consulta, lo que hace es recuperar un valor anterior. Por ejemplo, se usa en `mesa_anterior`, donde precisamente devuelve la facturación del mes anterior. 
+**Comentario:** Se usa `DATA_TRUNC` para obtener el mes de una fecha que contiene más datos. `En media_movil_3m` se usa una función de venta que devuelve el mes anterior y los dos siguientes. La función `LAG()`, que se usa varias veces en esta consulta, lo que hace es recuperar un valor anterior. Por ejemplo, se usa en `mes_anterior`, donde precisamente devuelve la facturación del mes anterior. 
 
 ## Pregunta 20 — Cuadro de mando anual por categoría
 
@@ -634,20 +634,4 @@ ORDER BY
 
 ![P20](img/P20.png)
 
-**Comentario:** La función `FILTER` te permite aplicar una condición WHERE únicamente a una función de agregación específica. En este caso, a la función `SUM`. En este ejercicio, también se podría resolver con un `CASE`, pero es algo más denso. Aún así, en un primer momento no conocía esta función y lo hice utilizando y la `CTE` quedaba así:
-
-```sql
-WITH VentasCategoria AS (
-    SELECT 
-        c.category_name AS categoria,
-        SUM(CASE WHEN EXTRACT(YEAR FROM o.order_date) = 1996 THEN ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2) ELSE 0 END) AS f_1996,
-        SUM(CASE WHEN EXTRACT(YEAR FROM o.order_date) = 1997 THEN ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2) ELSE 0 END) AS f_1997,
-        SUM(CASE WHEN EXTRACT(YEAR FROM o.order_date) = 1998 THEN ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2) ELSE 0 END) AS f_1998,
-        SUM(ROUND((od.unit_price::numeric) * od.quantity * (1 - od.discount::numeric), 2)) AS total
-    FROM categories c 
-    INNER JOIN products p USING (category_id) 
-    INNER JOIN order_details od USING (product_id) 
-    INNER JOIN orders o USING (order_id)
-    GROUP BY ROLLUP(c.category_name)
-)
-```
+**Comentario:** La función `FILTER` te permite aplicar una condición WHERE únicamente a una función de agregación específica. En este caso, a la función `SUM`. En este ejercicio, también se podría resolver con un `CASE`, pero es algo más denso.
