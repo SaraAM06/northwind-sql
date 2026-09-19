@@ -17,7 +17,7 @@ ORDER BY precio DESC;
 
 ![P01](img/p01.png)
 
-**Comentario:** He utilizado la función `ROUND` para que sólo devuelva dos decimales del precio. `unit_price` es de tipo real por eso de castea a numeric porque `ROUND` no acepta ese tipo de valor.
+**Comentario:** He utilizado la función `ROUND` para que sólo devuelva dos decimales del precio. `unit_price` es de tipo real por eso se castea a numeric porque `ROUND` no acepta ese tipo de valor.
 
 ## Pregunta 2 — Concentración geográfica de la cartera
 
@@ -98,7 +98,7 @@ ORDER BY s.country ASC, p.product_name ASC;
 
 ![P04](img/P04.png)
 
-**Comentario:** En el `INNER JOIN` he utilizado `USING`, en vez de la opción larga de JOIN: `INNER JOIN categories c = p.category_id = c.category_id`, porque al llamarse la columna igual en las dos tablas esta función es más rápida, además de así podía aprovechar para usar una función aprendida en los cursos de Datacamp.
+**Comentario:** En el `INNER JOIN` he utilizado `USING`, en vez de la opción larga de JOIN: `INNER JOIN categories c ON p.category_id = c.category_id`, porque al llamarse la columna igual en las dos tablas esta función es más rápida, además de que así aprovechaba para usar una función aprendida en los cursos de Datacamp.
 
 ## Pregunta 5 — Detalle valorizado de un pedido
 
@@ -152,7 +152,7 @@ ORDER BY facturacion DESC;
 
 ![P06](img/P06.png)
 
-**Comentario:** Se puede aplicar la función `ROUND` directamente al resultado de una función de agregación como `SUM`. Calcular la facturación, debido a qué está dentro de qué, es lo que más problemas me ha causado en este ejercicio.
+**Comentario:** Se puede aplicar la función `ROUND` directamente al resultado de una función de agregación como `SUM`. Lo que más problemas me ha causado en este ejercicio ha sido entender la jerarquía de las funciones (qué va dentro de qué) al calcular la facturación.
 
 ## Pregunta 7 — Clientes sin actividad comercial
 
@@ -176,7 +176,7 @@ ORDER BY num_pedidos ASC, c.company_name ASC;
 
 ![P07](img/P07.png)
 
-**Comentario:** Uso de función `COALESCE` que permite que también los clientes que no hayan realizado pedidos también aparezcan. Además, esta función te permite añadir un texto alternativo para que no aparezca `null` en este caso hemos definido el texto `SIN PEDIDOS`
+**Comentario:** Uso de función `COALESCE` que permite que los clientes que no hayan realizado pedidos también aparezcan. Además, esta función te permite añadir un texto alternativo para que no aparezca `null`; en este caso hemos definido el texto `SIN PEDIDOS`
 
 ## Pregunta 8 — Organigrama de la fuerza de ventas
 
@@ -198,7 +198,7 @@ LEFT JOIN employees m ON e.reports_to = m.employee_id;
 
 ![P08](img/P08.png)
 
-**Comentario:** Uso de la función `COALESCE` nuevamente y de los símbolos `||` que funciona para concatenar.
+**Comentario:** Uso de la función `COALESCE` nuevamente y de los símbolos `||` para concatenar.
 
 ## Pregunta 9 — Rejilla de cobertura categoría × año
 
@@ -279,6 +279,8 @@ ORDER BY pais ASC;
 
 ![P10](img/P10.png)
 
+**Comentario:** Uso de la función `COALESCE` pero ahora, en vez de con un texto alternativo, con un valor alternativo: 0. Para la columna `tipo_presencia` se usa `CASE` para clasificar cada país dependiendo de clientes y proveedores.
+
 ## Pregunta 11 — Directorio unificado de contactos
 
 **Enunciado:** Sistemas va a migrar el CRM y necesita una exportación única con todos los contactos de la compañía, vengan de donde vengan. Construye una sola tabla que reúna los contactos de clientes, los de proveedores y los empleados. Cada fila debe indicar el origen (`'CLIENTE'`, `'PROVEEDOR'`, `'EMPLEADO'`), el nombre de la persona de contacto **en mayúsculas**, la organización a la que pertenece, la ciudad y el país. Para los empleados, la organización es el literal `'NORTHWIND TRADERS'` y el nombre de contacto se forma concatenando nombre y apellidos. Ordena por origen y luego por país.
@@ -297,6 +299,8 @@ ORDER BY origen ASC, pais ASC;
 **Captura:**
 
 ![P11](img/P11.png)
+
+**Comentario:** Uso de función `UPPER` para que aparezca el texto en mayúsculas. Se usa `UNION ALL` para devolver en una las tres consultas. Cada fila tiene una celda introducida manualmente en la consulta para especificar 'CLIENTE', 'PROVEEDOR' o 'EMPLEADO'.
 
 ## Pregunta 12 — Mercados con desequilibrio
 
@@ -328,6 +332,8 @@ ORDER BY pais ASC;
 
 ![P12](img/P12.png)
 
+**Comentario:** el operador `EXCEPT` se usa para devolver solo los países que no aparecen en la segunda consulta también. `INTERSECT` funciona justamente al revés, devuelve los países que aparezcan en ambas consultas.
+
 ## Pregunta 13 — Clientes que nunca han comprado pescado
 
 **Enunciado:** El responsable de la categoría Seafood quiere una lista de cuentas sobre las que hacer campaña de captación. Localiza los clientes que **nunca** han incluido un producto de la categoría `'Seafood'` en ninguno de sus pedidos. Muestra el nombre del cliente, su país y el número total de pedidos que sí ha realizado, de mayor a menor.
@@ -358,6 +364,8 @@ ORDER BY pedidos_realizados DESC;
 
 ![P13](img/P13.png)
 
+**Comentario:** `NOT EXISTS` evalúa si la subconsulta encuentra registros o no. En este caso solo se incluirán resultados donde esa consulta no devuelva ninguna fila . En el `SELECT` de la subconsulta se usa un 1 en vez de un * o columnas específicas por una cuestión de optimización; es indiferente lo que devuelva, lo importante es si devuelve o no algo.
+
 ## Pregunta 14 — Productos por encima de la media
 
 **Enunciado:** El comité de precios quiere identificar el segmento premium del catálogo. Muestra los productos activos cuyo precio unitario supere el precio medio de **todo** el catálogo. Incluye en cada fila el precio del producto, el precio medio general y la diferencia entre ambos, todo redondeado a dos decimales. Ordena por diferencia descendente.
@@ -378,6 +386,8 @@ ORDER BY diferencia DESC;
 **Captura:**
 
 ![P14](img/P14.png)
+
+**Comentario:** Destacar de este ejercicio que se puede aplicar `ROUND` directamente al resultado de una subconsulta. No lo sabía, es algo que tuve que buscar para realizar este ejercicio.
 
 ## Pregunta 15 — Ticket medio por cliente
 
@@ -411,6 +421,8 @@ LIMIT 15;
 
 ![P15](img/P15.png)
 
+**Comentario:** 
+
 ## Pregunta 16 — El producto más caro de cada categoría
 
 **Enunciado:** El equipo de compras quiere revisar el posicionamiento de precio en cada familia. Para cada categoría, muestra el producto con el precio unitario más alto. Incluye el nombre de la categoría, el nombre del producto, su precio y el precio medio de su categoría. Resuélvelo con una **subconsulta correlacionada**: para cada producto, comprueba si su precio coincide con el máximo de su propia categoría.
@@ -436,6 +448,8 @@ WHERE
 **Captura:**
 
 ![P16](img/P16.png)
+
+**Comentario:** Subconsulta en el `WHERE` para cumplir con lo especificado en el enunciado. Compara si `unit_price` es igual al máximo de su propia categoría.
 
 ## Pregunta 17 — Segmentación ABC de la cartera de clientes
 
@@ -487,6 +501,8 @@ ORDER BY segmento ASC;
 
 ![P17](img/P17.png)
 
+**Comentario:**  `NTILE` es una función de ventana en SQL que divide un conjunto de filas, en esta caso hemos especificado que lo haga en cuatro conjuntos. `ORDER BY` aquí lo que hace es indicarle cómo debe ordenar los datos antes de repartirlos en esos 4 grupos.
+
 ## Pregunta 18 — Los tres productos más vendidos de cada categoría
 
 **Enunciado:** El equipo de categoría necesita el podio de cada familia para negociar con proveedores. Para cada categoría, obtén los **tres productos con mayor facturación**. Muestra la categoría, la posición dentro de la categoría, el nombre del producto, las unidades vendidas y la facturación. Incluye además una columna con la posición global del producto en el conjunto de la compañía, para que se vea qué productos son líderes de su nicho pero irrelevantes en el total.
@@ -531,6 +547,8 @@ ORDER BY categoria ASC, posicion_en_categoria ASC;
 **Captura:**
 
 ![P18](img/P18.png)
+
+**Comentario:** 
 
 ## Pregunta 19 — Evolución mensual con acumulado y media móvil
 
