@@ -586,7 +586,7 @@ ORDER BY mes ASC;
 
 ![P19](img/P19.png)
 
-**Comentario:** Se usa `DATA_TRUNC` para obtener el mes de una fecha que contiene más datos. `En media_movil_3m` se usa una función de venta que devuelve el mes anterior y los dos siguientes. La función `LAG()`, que se usa varias veces en esta consulta, lo que hace es recuperar un valor anterior. Por ejemplo, se usa en `mes_anterior`, donde precisamente devuelve la facturación del mes anterior. 
+**Comentario:** Se usa `DATE_TRUNC` para agrupar cada pedido por su mes, quedándonos solo con la parte de fecha que nos interesa (año y mes). En `media_movil_3m` se usa una función de ventana con el marco `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW`, que calcula el promedio del mes actual junto con los dos meses anteriores. La función `LAG()`, que se usa varias veces en esta consulta, recupera el valor de la fila anterior según el `ORDER BY`; en `mes_anterior` se usa precisamente para traer la facturación del mes previo, y esa misma llamada se reutiliza para calcular `variacion_pct`.
 
 ## Pregunta 20 — Cuadro de mando anual por categoría
 
