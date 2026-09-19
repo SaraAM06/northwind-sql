@@ -13,9 +13,11 @@ FROM products
 WHERE discontinued = 0 AND unit_price BETWEEN 10 AND 50
 ORDER BY precio DESC;
 ```
-**Captura:**
+**Captura:** 
 
 ![P01](img/p01.png)
+
+**Comentario:** He utilizado la función `ROUND` para que sólo devuelva dos decimales del precio. `unit_price` es de tipo real por eso de castea a numeric porque `ROUND` no acepta ese tipo de valor.
 
 ## Pregunta 2 — Concentración geográfica de la cartera
 
@@ -39,6 +41,8 @@ ORDER BY num_clientes DESC;
 
 ![P02](img/p02.png)
 
+**Comentario:** Se usa `COUNT` con `customer_id` porque es un campo obligatorio que sí o sí tendrán todos los clientes. En el segundo `COUNT` se usa `DISTINCT` para que si hay una ciudad que se repite varias veces no la cuente varias veces. Se usa `HAVING` en vez de `WHERE` porque el filtro se está haciendo sobre una función de agregación.
+
 ## Pregunta 3 — Alerta de reposición
 
 **Enunciado:** Logística necesita detectar qué referencias están en riesgo de rotura de stock. Localiza los productos activos cuyas unidades en stock sean **inferiores o iguales** a su nivel de reposición. Muestra el nombre, las unidades en stock, el nivel de reposición, las unidades ya pedidas al proveedor y una columna de texto que indique `'CRÍTICO'` cuando el stock sea 0 y `'AVISO'` en el resto de casos.
@@ -56,8 +60,7 @@ SELECT
         WHEN units_in_stock = 0 THEN 'CRÍTICO' 
         ELSE 'AVISO' 
     END AS situacion
-FROM 
-    products
+FROM products
 WHERE 
     discontinued = 0 
     AND units_in_stock <= reorder_level 
@@ -68,6 +71,8 @@ WHERE
 **Captura:**
 
 ![P03](img/P03.png)
+
+**Comentario:** Aunque `discontinued` funcione como un booleano, en la base de datos esta almacenado con integer. Por tanto, `discontinued = 0` es lo mismo que `discontinued = false`
 
 ## Pregunta 4 — Ficha completa de producto
 
@@ -93,6 +98,7 @@ ORDER BY s.country ASC, p.product_name ASC;
 
 ![P04](img/P04.png)
 
+**Comentario:** En el `INNER JOIN` he utilizado `USING`, en vez de la opción larga de JOIN: `INNER JOIN categories c = p.category_id = c.category_id`, porque al llamarse la columna igual en las dos tablas esta función es más rápida, además de así podía aprovechar para usar una función aprendida en los cursos de Datacamp.
 
 ## Pregunta 5 — Detalle valorizado de un pedido
 
@@ -120,6 +126,8 @@ WHERE o.order_id = 10248;
 
 ![P05](img/P05.png)
 
+**Comentario:** La fórmula para calcular `importe_línea` es la proporcionada por el propio enunciado. Destacar que dentro de la función `ROUND` se pueden hacer cálculos matemáticos
+
 ## Pregunta 6 — Ranking de categorías por facturación
 
 **Enunciado:** Comité de dirección: ¿qué familias de producto sostienen realmente el negocio? Calcula la facturación total de cada categoría durante toda la historia de la compañía. Muestra el nombre de la categoría, el número de líneas de pedido que ha generado, el número de productos distintos vendidos y la facturación total. Incluye únicamente las categorías que superen los **100.000 euros** de facturación, ordenadas de mayor a menor.
@@ -144,6 +152,8 @@ ORDER BY facturacion DESC;
 
 ![P06](img/P06.png)
 
+**Comentario:** Se puede aplicar la función `ROUND` directamente al resultado de una función de agregación como `SUM`. Calcular la facturación, debido a qué está dentro de qué, es lo que más problemas me ha causado en este ejercicio.
+
 ## Pregunta 7 — Clientes sin actividad comercial
 
 **Enunciado:** Dirección comercial sospecha que hay cuentas abiertas que nunca han llegado a comprar. Lista **todos** los clientes con el número de pedidos que ha realizado cada uno y la fecha de su último pedido. Los clientes sin ningún pedido deben aparecer igualmente, con un 0 en el conteo y el texto `'SIN PEDIDOS'` en lugar de la fecha. Ordena de forma que los clientes inactivos aparezcan primero.
@@ -166,6 +176,8 @@ ORDER BY num_pedidos ASC, c.company_name ASC;
 
 ![P07](img/P07.png)
 
+**Comentario:** Uso de función `COALESCE` que permite que también los clientes que no hayan realizado pedidos también aparezcan. Además, esta función te permite añadir un texto alternativo para que no aparezca `null` en este caso hemos definido el texto `SIN PEDIDOS`
+
 ## Pregunta 8 — Organigrama de la fuerza de ventas
 
 **Enunciado:** Recursos Humanos necesita el organigrama del departamento comercial en formato tabla. Muestra cada empleado con su nombre completo, su cargo, el nombre completo de la persona a la que reporta y el cargo de esa persona. El empleado que no reporta a nadie debe aparecer también, con el texto `'DIRECCIÓN GENERAL'` en el campo del responsable.
@@ -186,6 +198,7 @@ LEFT JOIN employees m ON e.reports_to = m.employee_id;
 
 ![P08](img/P08.png)
 
+**Comentario:** Uso de la función `COALESCE` nuevamente y de los símbolos `||` que funciona para concatenar.
 
 ## Pregunta 9 — Rejilla de cobertura categoría × año
 
@@ -216,8 +229,7 @@ SELECT
     c.category_name AS categoria, 
     a.anio, 
     COALESCE(v.total, 0) AS facturacion
-FROM 
-    categories c
+FROM categories c
 CROSS JOIN anios a
 LEFT JOIN ventas v ON c.category_id = v.category_id AND a.anio = v.anio
 ORDER BY categoria ASC, anio ASC;
@@ -225,6 +237,8 @@ ORDER BY categoria ASC, anio ASC;
 **Captura:**
 
 ![P09](img/P09.png)
+
+**Comentario:** Uso de `UNION ALL` para devolver los tres `SELECT` en un solo resultado. Estos `SELECT` no tienen clausula `FROM` porque no provienen de ninguna tabla. Uso de función `EXTRACT` para extraer de `o.order_date` sólo la información que nos interesa, que es el año. Por último se usa un `CROSS JOIN` porque necesitamos todas las combinaciones posibles.
 
 ## Pregunta 10 — Mapa de países: clientes frente a proveedores
 
@@ -561,7 +575,7 @@ ORDER BY mes ASC;
 **Consulta:**
 
 ```sql
--- Devuelve un informe anual de la empresa con la facturación de 1996, 1997 y 1998
+-- Devuelve un informe anual de la empresa con la facturación de 1996, 1997 y 1998 estudiando su tendencia en el último año
 WITH VentasCategoria AS (
     SELECT 
         c.category_name AS categoria,
